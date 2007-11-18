@@ -1,0 +1,10 @@
+---
+global:
+  name: Vim-Complete
+releases:
+  - author: 'Marcel Gruenauer <marcel@cpan.org>'
+    changes:
+      - original version
+    date: 2007-11-18T10:33:27Z
+    tags: []
+    version: 0.01
