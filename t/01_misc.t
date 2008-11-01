@@ -27,6 +27,7 @@ my $expect = [ qw(
     report
     report_to_file
     result
+    seen
     self
     verbose
 ) ];

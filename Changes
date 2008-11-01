@@ -1,10 +1,18 @@
----
-global:
-  name: Vim-Complete
-releases:
-  - author: 'Marcel Gruenauer <marcel@cpan.org>'
-    changes:
-      - original version
-    date: 2007-11-18T10:33:27Z
-    tags: []
-    version: 0.01
+Revision history for Perl extension Vim-Complete
+
+0.03 Sat Nov  1 08:54:37 CET 2008 (Marcel Gruenauer <marcel@cpan.org>)
+     - Changed dist style and Changes back to standard. People didn't like it -
+       the nail that sticks out gets hammered down.
+     - Added standard test files; this will also help with CPANTS.
+     - remember if we've processed a file already; can happen with nested
+       directories in @INC
+
+0.02  Thu, 29 May 2008 12:09:19 -0000 (Marcel Gruenauer <marcel@cpan.org>)
+     - set the version to 0.02
+     - updated t/perlcriticrc
+     - moved generated documentation of interited methods to after
+       documentation of this class' methods so the manpage is more readable
+     - .shipit: fixed svk.tagpattern
+
+0.01  Sun, 18 Nov 2007 10:33:27 -0000 (Marcel Gruenauer <marcel@cpan.org>)
+     - original version

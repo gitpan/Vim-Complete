@@ -7,7 +7,7 @@ use Vim::Complete;
 use Pod::Usage;
 
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 
 sub usage ($;$$) {

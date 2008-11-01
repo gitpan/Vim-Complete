@@ -8,7 +8,7 @@ use File::Spec;
 use UNIVERSAL::require;
 
 
-our $VERSION = '0.06';
+our $VERSION = '0.05';
 
 
 my $Test = Test::Builder->new;
@@ -113,7 +113,5 @@ sub _starting_points {
 
 __END__
 
-{% USE p = PodGenerated %}
-
-#line 231
+#line 261
 
