@@ -1,5 +1,9 @@
 Revision history for Perl extension Vim-Complete
 
+0.04 Mon 2009.12.07 23:12:24 CET (Marcel Gruenauer <marcel@cpan.org>)
+     - reduced dependencies using author tests
+     - better dist engineering (INSTALL, README, README.mkdn etc.)
+
 0.03 Sat Nov  1 08:54:37 CET 2008 (Marcel Gruenauer <marcel@cpan.org>)
      - Changed dist style and Changes back to standard. People didn't like it -
        the nail that sticks out gets hammered down.
