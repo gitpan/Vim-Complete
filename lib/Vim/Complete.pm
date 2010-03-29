@@ -1,20 +1,17 @@
-package Vim::Complete;
-use 5.006;
+use 5.008;
 use strict;
 use warnings;
+
+package Vim::Complete;
+our $VERSION = '1.100880';
+# ABSTRACT: Generate auto completion information for vim
 use PPI;
 use File::Find;
 use File::Spec;
-our $VERSION = '0.04';
-use base qw(Class::Accessor::Complex);
-#<<<
-__PACKAGE__
-    ->mk_new
-    ->mk_scalar_accessors(qw(min_length))
-    ->mk_array_accessors(qw(dirs))
-    ->mk_hash_accessors(qw(result))
-    ->mk_boolean_accessors(qw(verbose));
-#>>>
+use parent qw(Class::Accessor::Complex);
+__PACKAGE__->mk_new->mk_scalar_accessors(qw(min_length))
+  ->mk_array_accessors(qw(dirs))->mk_hash_accessors(qw(result))
+  ->mk_boolean_accessors(qw(verbose));
 
 sub gather {
     my ($self, $filename) = @_;
@@ -77,11 +74,20 @@ sub parse {
     $self;    # for chaining
 }
 1;
+
+
 __END__
+=pod
+
+=for stopwords dirs
 
 =head1 NAME
 
 Vim::Complete - Generate auto completion information for vim
+
+=head1 VERSION
+
+version 1.100880
 
 =head1 SYNOPSIS
 
@@ -115,7 +121,7 @@ this line into your C<.vimrc>:
 
     set complete+=k~/.vimcomplete
 
-The <+=k> tells vim to also look into the specified file.
+The C<+=k> tells vim to also look into the specified file.
 
 For this to work well, you need to tell vim that colons are part of
 identifiers in Perl (for example, C<Foo::Bar> is an identifier. Put this line
@@ -134,322 +140,7 @@ identifiers. So the default minimum length is 3.
 
 =head1 METHODS
 
-=over 4
-
-=item C<new>
-
-    my $obj = Vim::Complete->new;
-    my $obj = Vim::Complete->new(%args);
-
-Creates and returns a new object. The constructor will accept as arguments a
-list of pairs, from component name to initial value. For each pair, the named
-component is initialized by calling the method of the same name with the given
-value. If called with a single hash reference, it is dereferenced and its
-key/value pairs are set as described before.
-
-=item C<clear_dirs>
-
-    $obj->clear_dirs;
-
-Deletes all elements from the array.
-
-=item C<clear_min_length>
-
-    $obj->clear_min_length;
-
-Clears the value.
-
-=item C<clear_result>
-
-    $obj->clear_result;
-
-Deletes all keys and values from the hash.
-
-=item C<clear_verbose>
-
-    $obj->clear_verbose;
-
-Clears the boolean value by setting it to 0.
-
-=item C<count_dirs>
-
-    my $count = $obj->count_dirs;
-
-Returns the number of elements in the array.
-
-=item C<delete_result>
-
-    $obj->delete_result(@keys);
-
-Takes a list of keys and deletes those keys from the hash.
-
-=item C<dirs>
-
-    my @values    = $obj->dirs;
-    my $array_ref = $obj->dirs;
-    $obj->dirs(@values);
-    $obj->dirs($array_ref);
-
-Get or set the array values. If called without an arguments, it returns the
-array in list context, or a reference to the array in scalar context. If
-called with arguments, it expands array references found therein and sets the
-values.
-
-=item C<dirs_clear>
-
-    $obj->dirs_clear;
-
-Deletes all elements from the array.
-
-=item C<dirs_count>
-
-    my $count = $obj->dirs_count;
-
-Returns the number of elements in the array.
-
-=item C<dirs_index>
-
-    my $element   = $obj->dirs_index(3);
-    my @elements  = $obj->dirs_index(@indices);
-    my $array_ref = $obj->dirs_index(@indices);
-
-Takes a list of indices and returns the elements indicated by those indices.
-If only one index is given, the corresponding array element is returned. If
-several indices are given, the result is returned as an array in list context
-or as an array reference in scalar context.
-
-=item C<dirs_pop>
-
-    my $value = $obj->dirs_pop;
-
-Pops the last element off the array, returning it.
-
-=item C<dirs_push>
-
-    $obj->dirs_push(@values);
-
-Pushes elements onto the end of the array.
-
-=item C<dirs_set>
-
-    $obj->dirs_set(1 => $x, 5 => $y);
-
-Takes a list of index/value pairs and for each pair it sets the array element
-at the indicated index to the indicated value. Returns the number of elements
-that have been set.
-
-=item C<dirs_shift>
-
-    my $value = $obj->dirs_shift;
-
-Shifts the first element off the array, returning it.
-
-=item C<dirs_splice>
-
-    $obj->dirs_splice(2, 1, $x, $y);
-    $obj->dirs_splice(-1);
-    $obj->dirs_splice(0, -1);
-
-Takes three arguments: An offset, a length and a list.
-
-Removes the elements designated by the offset and the length from the array,
-and replaces them with the elements of the list, if any. In list context,
-returns the elements removed from the array. In scalar context, returns the
-last element removed, or C<undef> if no elements are removed. The array grows
-or shrinks as necessary. If the offset is negative then it starts that far
-from the end of the array. If the length is omitted, removes everything from
-the offset onward. If the length is negative, removes the elements from the
-offset onward except for -length elements at the end of the array. If both the
-offset and the length are omitted, removes everything. If the offset is past
-the end of the array, it issues a warning, and splices at the end of the
-array.
-
-=item C<dirs_unshift>
-
-    $obj->dirs_unshift(@values);
-
-Unshifts elements onto the beginning of the array.
-
-=item C<exists_result>
-
-    if ($obj->exists_result($key)) { ... }
-
-Takes a key and returns a true value if the key exists in the hash, and a
-false value otherwise.
-
-=item C<index_dirs>
-
-    my $element   = $obj->index_dirs(3);
-    my @elements  = $obj->index_dirs(@indices);
-    my $array_ref = $obj->index_dirs(@indices);
-
-Takes a list of indices and returns the elements indicated by those indices.
-If only one index is given, the corresponding array element is returned. If
-several indices are given, the result is returned as an array in list context
-or as an array reference in scalar context.
-
-=item C<keys_result>
-
-    my @keys = $obj->keys_result;
-
-Returns a list of all hash keys in no particular order.
-
-=item C<min_length>
-
-    my $value = $obj->min_length;
-    $obj->min_length($value);
-
-A basic getter/setter method. If called without an argument, it returns the
-value. If called with a single argument, it sets the value.
-
-=item C<min_length_clear>
-
-    $obj->min_length_clear;
-
-Clears the value.
-
-=item C<pop_dirs>
-
-    my $value = $obj->pop_dirs;
-
-Pops the last element off the array, returning it.
-
-=item C<push_dirs>
-
-    $obj->push_dirs(@values);
-
-Pushes elements onto the end of the array.
-
-=item C<result>
-
-    my %hash     = $obj->result;
-    my $hash_ref = $obj->result;
-    my $value    = $obj->result($key);
-    my @values   = $obj->result([ qw(foo bar) ]);
-    $obj->result(%other_hash);
-    $obj->result(foo => 23, bar => 42);
-
-Get or set the hash values. If called without arguments, it returns the hash
-in list context, or a reference to the hash in scalar context. If called
-with a list of key/value pairs, it sets each key to its corresponding value,
-then returns the hash as described before.
-
-If called with exactly one key, it returns the corresponding value.
-
-If called with exactly one array reference, it returns an array whose elements
-are the values corresponding to the keys in the argument array, in the same
-order. The resulting list is returned as an array in list context, or a
-reference to the array in scalar context.
-
-If called with exactly one hash reference, it updates the hash with the given
-key/value pairs, then returns the hash in list context, or a reference to the
-hash in scalar context.
-
-=item C<result_clear>
-
-    $obj->result_clear;
-
-Deletes all keys and values from the hash.
-
-=item C<result_delete>
-
-    $obj->result_delete(@keys);
-
-Takes a list of keys and deletes those keys from the hash.
-
-=item C<result_exists>
-
-    if ($obj->result_exists($key)) { ... }
-
-Takes a key and returns a true value if the key exists in the hash, and a
-false value otherwise.
-
-=item C<result_keys>
-
-    my @keys = $obj->result_keys;
-
-Returns a list of all hash keys in no particular order.
-
-=item C<result_values>
-
-    my @values = $obj->result_values;
-
-Returns a list of all hash values in no particular order.
-
-=item C<set_dirs>
-
-    $obj->set_dirs(1 => $x, 5 => $y);
-
-Takes a list of index/value pairs and for each pair it sets the array element
-at the indicated index to the indicated value. Returns the number of elements
-that have been set.
-
-=item C<set_verbose>
-
-    $obj->set_verbose;
-
-Sets the boolean value to 1.
-
-=item C<shift_dirs>
-
-    my $value = $obj->shift_dirs;
-
-Shifts the first element off the array, returning it.
-
-=item C<splice_dirs>
-
-    $obj->splice_dirs(2, 1, $x, $y);
-    $obj->splice_dirs(-1);
-    $obj->splice_dirs(0, -1);
-
-Takes three arguments: An offset, a length and a list.
-
-Removes the elements designated by the offset and the length from the array,
-and replaces them with the elements of the list, if any. In list context,
-returns the elements removed from the array. In scalar context, returns the
-last element removed, or C<undef> if no elements are removed. The array grows
-or shrinks as necessary. If the offset is negative then it starts that far
-from the end of the array. If the length is omitted, removes everything from
-the offset onward. If the length is negative, removes the elements from the
-offset onward except for -length elements at the end of the array. If both the
-offset and the length are omitted, removes everything. If the offset is past
-the end of the array, it issues a warning, and splices at the end of the
-array.
-
-=item C<unshift_dirs>
-
-    $obj->unshift_dirs(@values);
-
-Unshifts elements onto the beginning of the array.
-
-=item C<values_result>
-
-    my @values = $obj->values_result;
-
-Returns a list of all hash values in no particular order.
-
-=item C<verbose>
-
-    $obj->verbose($value);
-    my $value = $obj->verbose;
-
-If called without an argument, returns the boolean value (0 or 1). If called
-with an argument, it normalizes it to the boolean value. That is, the values
-0, undef and the empty string become 0; everything else becomes 1.
-
-=item C<verbose_clear>
-
-    $obj->verbose_clear;
-
-Clears the boolean value by setting it to 0.
-
-=item C<verbose_set>
-
-    $obj->verbose_set;
-
-Sets the boolean value to 1.
-
-=item C<parse>
+=head2 parse
 
 Assumes that C<dir()>, and optionally C<verbose()> and C<min_length()>, have
 been set and starts to look in the directories for files ending in C<.pm>. For
@@ -458,17 +149,17 @@ each file it gathers information using C<gather()>.
 Returns the Vim::Complete object so method calls can be chained as seen in the
 L</SYNOPSIS>.
 
-=item C<report>
+=head2 report
 
 Takes all the gathered findings and returns the list of identifiers. Returns
 an array in list context, or a reference to the array in scalar context.
 
-=item C<report_to_file>
+=head2 report_to_file
 
 Takes as argument a filename. Writes the report generated by C<report()> to
 the file.
 
-=item C<gather>
+=head2 gather
 
 Takes a filename of a module, parses the source code and makes a note of the
 package names, subroutine names and variable names it sees.
@@ -476,59 +167,249 @@ package names, subroutine names and variable names it sees.
 This method is called by C<parse()>; it is unlikely that you want to call it
 yourself.
 
+=head2 min_length
+
+The minimum length a package name, variable name or subroutine has to have for
+a tag to be made. Defaults to 3.
+
+A basic getter/setter method. If called without an argument, it returns the
+value. If called with a single argument, it sets the value.
+
+Examples:
+
+  my $value = $obj->min_length;
+
+  $obj->min_length($value);
+
+There are also the following helper methods for this accessor:
+
+=over 4
+
+=item C<clear_min_length>
+
+=item C<min_length_clear>
+
+Clears the value.
+
+Example:
+
+  $obj->clear_min_length;
+
 =back
 
-Vim::Complete inherits from L<Class::Accessor::Complex>.
+=head2 dirs
 
-The superclass L<Class::Accessor::Complex> defines these methods and
-functions:
+A list of directories to be searched.
 
-    mk_abstract_accessors(), mk_array_accessors(), mk_boolean_accessors(),
-    mk_class_array_accessors(), mk_class_hash_accessors(),
-    mk_class_scalar_accessors(), mk_concat_accessors(),
-    mk_forward_accessors(), mk_hash_accessors(), mk_integer_accessors(),
-    mk_new(), mk_object_accessors(), mk_scalar_accessors(),
-    mk_set_accessors(), mk_singleton()
+Get or set the array values. If called without arguments, it returns the
+array in list context, or a reference to the array in scalar context. If
+called with arguments, it expands array references found therein and sets the
+values.
 
-The superclass L<Class::Accessor> defines these methods and functions:
+Examples:
 
-    _carp(), _croak(), _mk_accessors(), accessor_name_for(),
-    best_practice_accessor_name_for(), best_practice_mutator_name_for(),
-    follow_best_practice(), get(), make_accessor(), make_ro_accessor(),
-    make_wo_accessor(), mk_accessors(), mk_ro_accessors(),
-    mk_wo_accessors(), mutator_name_for(), set()
+  my @values    = $obj->dirs;
 
-The superclass L<Class::Accessor::Installer> defines these methods and
-functions:
+  my $array_ref = $obj->dirs;
 
-    install_accessor()
+  $obj->dirs(@values);
+
+  $obj->dirs($array_ref);
+
+There are also the following helper methods for this accessor:
+
+=over 4
+
+=item C<push_dirs>
+
+=item C<dirs_push>
+
+Pushes elements onto the end of the array.
+
+Example:
+
+  $obj->push_dirs(@values);
+
+=item C<pop_dirs>
+
+=item C<dirs_pop>
+
+Pops the last element off the array, returning it.
+
+Example:
+
+  my $value = $obj->pop_dirs;
+
+=item C<unshift_dirs>
+
+=item C<dirs_unshift>
+
+Unshifts elements onto the beginning of the array.
+
+Example:
+
+  $obj->unshift_dirs(@values);
+
+=item C<shift_dirs>
+
+=item C<dirs_shift>
+
+Shifts the first element off the array, returning it.
+
+Example:
+
+  my $value = $obj->shift_dirs;
+
+=item C<clear_dirs>
+
+=item C<dirs_clear>
+
+Deletes all elements from the array.
+
+Example:
+
+  $obj->clear_dirs;
+
+=item C<count_dirs>
+
+=item C<dirs_count>
+
+Returns the number of elements in the array.
+
+Example:
+
+  my $count = $obj->count_dirs;
+
+=item C<splice_dirs>
+
+=item C<dirs_splice>
+
+Takes three arguments: An offset, a length and a list.
+
+Removes the elements designated by the offset and the length from the array,
+and replaces them with the elements of the list, if any. In list context,
+returns the elements removed from the array. In scalar context, returns the
+last element removed, or C<undef> if no elements are removed. The array grows
+or shrinks as necessary. If the offset is negative then it starts that far
+from the end of the array. If the length is omitted, removes everything from
+the offset onward. If the length is negative, removes the elements from the
+offset onward except for -length elements at the end of the array. If both the
+offset and the length are omitted, removes everything. If the offset is past
+the end of the array, it issues a warning, and splices at the end of the
+array.
+
+Examples:
+
+  $obj->splice_dirs(2, 1, $x, $y);
+
+  $obj->splice_dirs(-1);
+
+  $obj->splice_dirs(0, -1);
+
+=item C<index_dirs>
+
+=item C<dirs_index>
+
+Takes a list of indices and returns the elements indicated by those indices.
+If only one index is given, the corresponding array element is returned. If
+several indices are given, the result is returned as an array in list context
+or as an array reference in scalar context.
+
+Examples:
+
+  my $element   = $obj->index_dirs(3);
+
+  my @elements  = $obj->index_dirs(@indices);
+
+  my $array_ref = $obj->index_dirs(@indices);
+
+=item C<set_dirs>
+
+=item C<dirs_set>
+
+Takes a list of index/value pairs and for each pair it sets the array element
+at the indicated index to the indicated value. Returns the number of elements
+that have been set.
+
+Example:
+
+  $obj->set_dirs(1 => $x, 5 => $y);
+
+=back
+
+=head2 verbose
+
+A flag that indicates whether verbose diagnostics should be sent to STDERR.
+
+If called without an argument, returns the boolean value (0 or 1). If called
+with an argument, it normalizes it to the boolean value. That is, the values
+0, undef and the empty string become 0; everything else becomes 1.
+
+Examples:
+
+  $obj->verbose($value);
+
+  my $value = $obj->verbose;
+
+There are also the following helper methods for this accessor:
+
+=over 4
+
+=item C<set_verbose>
+
+=item C<verbose_set>
+
+Sets the boolean value to 1.
+
+Example:
+
+  $obj->set_verbose;
+
+=item C<clear_verbose>
+
+=item C<verbose_clear>
+
+Clears the boolean value by setting it to 0.
+
+Example:
+
+  $obj->clear_verbose;
+
+=back
+
+=head1 INSTALLATION
+
+See perlmodinstall for information and options on installing Perl modules.
 
 =head1 BUGS AND LIMITATIONS
 
 No bugs have been reported.
 
 Please report any bugs or feature requests through the web interface at
-L<http://rt.cpan.org>.
-
-=head1 INSTALLATION
-
-See perlmodinstall for information and options on installing Perl modules.
+L<http://rt.cpan.org/Public/Dist/Display.html?Name=Vim-Complete>.
 
 =head1 AVAILABILITY
 
 The latest version of this module is available from the Comprehensive Perl
-Archive Network (CPAN). Visit <http://www.perl.com/CPAN/> to find a CPAN
-site near you. Or see L<http://search.cpan.org/dist/Vim-Complete/>.
+Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
+site near you, or see
+L<http://search.cpan.org/dist/Vim-Complete/>.
 
-=head1 AUTHORS
+The development version lives at
+L<http://github.com/hanekomu/Vim-Complete/>.
+Instead of sending patches, please fork this project using the standard git
+and github infrastructure.
 
-Marcel GrE<uuml>nauer, C<< <marcel@cpan.org> >>
+=head1 AUTHOR
+
+  Marcel Gruenauer <marcel@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2009 by the authors.
+This software is copyright (c) 2007 by Marcel Gruenauer.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
+

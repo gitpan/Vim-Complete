@@ -4,7 +4,6 @@ use strict;
 use Getopt::Attribute;
 use Vim::Complete;
 use Pod::Usage;
-our $VERSION = '0.04';
 
 sub usage ($;$$) {
     my ($message, $exitval, $verbose) = @_;
@@ -37,7 +36,6 @@ Vim::Complete->new(
     verbose    => $verbose,
     min_length => $min_length,
 )->parse->report_to_file($filename);
-__END__
 
 =head1 NAME
 
